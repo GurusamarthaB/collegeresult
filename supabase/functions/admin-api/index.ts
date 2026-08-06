@@ -7,20 +7,20 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const ADMIN_PASSWORD = Deno.env.get("ADMIN_PASSWORD") ?? "admin123";
-
-function verifyAdmin(req: Request): boolean {
-  const auth = req.headers.get("Authorization");
-  if (!auth || !auth.startsWith("Bearer ")) return false;
-  const token = auth.split(" ")[1];
-  return token === ADMIN_PASSWORD;
-}
-
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+async function getAdminPassword(supabase: ReturnType<typeof createClient>): Promise<string> {
+  const { data } = await supabase
+    .from("admin_config")
+    .select("admin_password")
+    .eq("id", 1)
+    .maybeSingle();
+  return data?.admin_password ?? "admin123";
 }
 
 Deno.serve(async (req: Request) => {
@@ -35,19 +35,28 @@ Deno.serve(async (req: Request) => {
     );
 
     const url = new URL(req.url);
-    const path = url.pathname.replace("/functions/v1/admin-api", "");
+    let path = url.pathname;
+    path = path.replace(/^\/functions\/v1\/admin-api/, "").replace(/^\/admin-api/, "");
+    if (path === "") path = "/";
+
+    const adminPassword = await getAdminPassword(supabase);
 
     // ── Admin Login ──────────────────────────
     if (path === "/login" && req.method === "POST") {
       const { password } = await req.json();
-      if (!password || password !== ADMIN_PASSWORD) {
+      if (!password || password !== adminPassword) {
         return json({ success: false, error: "Incorrect password" }, 401);
       }
-      return json({ success: true, token: ADMIN_PASSWORD });
+      return json({ success: true, token: adminPassword });
     }
 
     // All other routes require admin auth
-    if (!verifyAdmin(req)) {
+    const auth = req.headers.get("Authorization");
+    if (!auth || !auth.startsWith("Bearer ")) {
+      return json({ error: "Unauthorized" }, 401);
+    }
+    const token = auth.split(" ")[1];
+    if (token !== adminPassword) {
       return json({ error: "Unauthorized" }, 401);
     }
 
@@ -126,15 +135,6 @@ Deno.serve(async (req: Request) => {
         return String(key || "").replace(/[_\-]/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()).trim();
       }
 
-      function parseYearFromClass(classGrade: string): number | string {
-        const s = String(classGrade || "").toLowerCase();
-        if (/\b1\b|\b1st\b|first|year\s*1/.test(s)) return 1;
-        if (/\b2\b|\b2nd\b|second|year\s*2/.test(s)) return 2;
-        const m = s.match(/(\d+)/);
-        if (m) return parseInt(m[1], 10);
-        return "unknown";
-      }
-
       const parsedRows = rows.map((row: Record<string, unknown>) => {
         const rollNo = String(getRowValue(row, ["Roll No", "RollNo", "roll_no", "rollno", "roll number"]) || "").trim().toUpperCase();
         const name = String(getRowValue(row, ["Name", "name", "Student Name", "studentname"]) || "").trim();
@@ -165,18 +165,6 @@ Deno.serve(async (req: Request) => {
         rollNo: string; name: string; classGrade: string; combination: string;
         marks: Record<string, number>; totalMarks: number; percentage: number;
       }>;
-
-      // Group by year for ranking
-      const groupsByYear: Record<string, typeof parsedRows> = {};
-      parsedRows.forEach((item) => {
-        const year = String(parseYearFromClass(item.classGrade));
-        if (!groupsByYear[year]) groupsByYear[year] = [];
-        groupsByYear[year].push(item);
-      });
-
-      Object.values(groupsByYear).forEach((group) => {
-        group.sort((a, b) => b.totalMarks - a.totalMarks);
-      });
 
       let successCount = 0;
       for (const item of parsedRows) {
