@@ -1,11 +1,5 @@
-/* =============================================
-   Sadvidya PU College — Result Portal
-   Complete Stylesheet
-   ============================================= */
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* ── Reset & Base ──────────────────────────── */
 *, *::before, *::after {
   margin: 0;
   padding: 0;
@@ -23,7 +17,6 @@ body {
   color: #1F2937;
 }
 
-/* ── Layout Containers ─────────────────────── */
 .container {
   min-height: 100vh;
   display: flex;
@@ -32,25 +25,21 @@ body {
   padding: 40px;
 }
 
-/* ── Login Card (Student + Admin Login) ────── */
 .login-card {
   width: 100%;
   max-width: 480px;
   background: #FFFFFF;
   border-radius: 24px;
   padding: 48px;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.04),
-    0 10px 40px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04), 0 10px 40px rgba(0,0,0,0.08);
   animation: cardFadeIn 0.5s ease-out;
 }
 
 @keyframes cardFadeIn {
   from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Typography ────────────────────────────── */
 h1 {
   color: #612D53;
   font-size: 2rem;
@@ -76,14 +65,6 @@ h2 {
   font-size: 0.9rem;
 }
 
-.logo {
-  width: 100px;
-  display: block;
-  margin: 0 auto 28px auto;
-  border-radius: 50%;
-}
-
-/* ── Form Elements ─────────────────────────── */
 label {
   display: block;
   margin-bottom: 6px;
@@ -110,11 +91,10 @@ select {
 input:focus, select:focus {
   outline: none;
   border-color: #612D53;
-  box-shadow: 0 0 0 3px rgba(97, 45, 83, 0.1);
+  box-shadow: 0 0 0 3px rgba(97,45,83,0.1);
   background: #FFF;
 }
 
-/* ── Buttons ───────────────────────────────── */
 button, .btn {
   width: 100%;
   padding: 14px;
@@ -133,12 +113,10 @@ button, .btn {
 
 button:hover, .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(97, 45, 83, 0.3);
+  box-shadow: 0 8px 25px rgba(97,45,83,0.3);
 }
 
-button:active, .btn:active {
-  transform: translateY(0);
-}
+button:active, .btn:active { transform: translateY(0); }
 
 button:disabled {
   opacity: 0.6;
@@ -155,11 +133,7 @@ button:disabled {
 
 .btn-secondary:hover {
   background: #E5E7EB;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.btn-danger {
-  background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .btn-small {
@@ -168,7 +142,6 @@ button:disabled {
   font-size: 13px;
 }
 
-/* ── Dividers ──────────────────────────────── */
 hr {
   border: none;
   height: 1px;
@@ -176,10 +149,7 @@ hr {
   margin: 28px 0;
 }
 
-/* ═══════════════════════════════════════════════
-   RESULT PAGE
-   ═══════════════════════════════════════════════ */
-
+/* ── Result Page ─────────────────────────── */
 .result-wrapper {
   min-height: 100vh;
   background: linear-gradient(135deg, #F3F4F6 0%, #EDE9F0 100%);
@@ -193,7 +163,7 @@ hr {
   background: white;
   border-radius: 24px;
   padding: 50px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
   overflow: hidden;
   animation: cardFadeIn 0.5s ease-out;
 }
@@ -212,10 +182,7 @@ hr {
   margin-bottom: 40px;
 }
 
-/* ── Student Info Rows ─────────────────────── */
-.student-info {
-  margin-bottom: 24px;
-}
+.student-info { margin-bottom: 24px; }
 
 .info-row {
   display: flex;
@@ -238,7 +205,6 @@ hr {
   min-width: 120px;
 }
 
-/* ── Marks Table ───────────────────────────── */
 .marks-table {
   width: 100%;
   border-collapse: collapse;
@@ -256,9 +222,7 @@ hr {
   font-weight: 700;
 }
 
-.marks-table th:last-child {
-  text-align: right;
-}
+.marks-table th:last-child { text-align: right; }
 
 .marks-table td {
   padding: 16px 20px;
@@ -271,15 +235,9 @@ hr {
   font-weight: 600;
 }
 
-.marks-table tbody tr {
-  transition: background 0.2s;
-}
+.marks-table tbody tr { transition: background 0.2s; }
+.marks-table tbody tr:hover { background: #FEFCFE; }
 
-.marks-table tbody tr:hover {
-  background: #FEFCFE;
-}
-
-/* ── Stats Grid ────────────────────────────── */
 .stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -301,7 +259,7 @@ hr {
 
 .stat-box:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(97, 45, 83, 0.1);
+  box-shadow: 0 6px 20px rgba(97,45,83,0.1);
 }
 
 .stat-box > div:last-child {
@@ -339,7 +297,6 @@ hr {
   color: #1F2937;
 }
 
-/* ── Back Link ─────────────────────────────── */
 .back-link {
   text-align: center;
   margin-top: 16px;
@@ -354,23 +311,19 @@ hr {
   align-items: center;
   gap: 8px;
   transition: opacity 0.2s;
+  cursor: pointer;
 }
 
-.back-link a:hover {
-  opacity: 0.7;
-}
+.back-link a:hover { opacity: 0.7; }
 
-/* ═══════════════════════════════════════════════
-   ADMIN DASHBOARD
-   ═══════════════════════════════════════════════ */
-
+/* ── Admin Dashboard ─────────────────────── */
 .admin-dashboard {
   width: 100%;
   max-width: 1100px;
   background: white;
   border-radius: 24px;
   padding: 48px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
   animation: cardFadeIn 0.5s ease-out;
 }
 
@@ -381,9 +334,7 @@ hr {
   margin-bottom: 8px;
 }
 
-.admin-header h1 {
-  text-align: left;
-}
+.admin-header h1 { text-align: left; }
 
 .admin-grid {
   display: grid;
@@ -406,7 +357,7 @@ hr {
 
 .admin-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(97, 45, 83, 0.12);
+  box-shadow: 0 8px 25px rgba(97,45,83,0.12);
 }
 
 .admin-card h3 {
@@ -423,11 +374,8 @@ hr {
   flex: 1;
 }
 
-.admin-card button {
-  width: 100%;
-}
+.admin-card button { width: 100%; }
 
-/* ── File Upload Area ──────────────────────── */
 .upload-area {
   border: 2px dashed #D1C4D9;
   border-radius: 16px;
@@ -462,7 +410,6 @@ hr {
   margin-top: 8px;
 }
 
-/* ── Student Table ─────────────────────────── */
 .student-table-wrapper {
   max-height: 400px;
   overflow-y: auto;
@@ -498,15 +445,12 @@ hr {
   font-size: 0.9rem;
 }
 
-.student-table tbody tr:hover {
-  background: #FEFCFE;
-}
+.student-table tbody tr:hover { background: #FEFCFE; }
 
-/* ── Modal ─────────────────────────────────── */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0,0,0,0.5);
   backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
@@ -532,12 +476,10 @@ hr {
   overflow-y: auto;
   transform: scale(0.9);
   transition: transform 0.3s;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
 }
 
-.modal-overlay.active .modal {
-  transform: scale(1);
-}
+.modal-overlay.active .modal { transform: scale(1); }
 
 .modal h2 {
   text-align: left;
@@ -552,11 +494,8 @@ hr {
   margin-top: 8px;
 }
 
-.modal-actions button {
-  flex: 1;
-}
+.modal-actions button { flex: 1; }
 
-/* ── Toast Notifications ───────────────────── */
 .toast-container {
   position: fixed;
   top: 24px;
@@ -575,7 +514,7 @@ hr {
   color: white;
   min-width: 280px;
   max-width: 400px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
   animation: toastIn 0.4s ease-out;
   display: flex;
   align-items: center;
@@ -597,12 +536,11 @@ hr {
   to   { opacity: 0; transform: translateX(40px); }
 }
 
-/* ── Loading Spinner ───────────────────────── */
 .spinner {
   display: inline-block;
   width: 18px;
   height: 18px;
-  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border: 2.5px solid rgba(255,255,255,0.3);
   border-top-color: white;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -610,29 +548,8 @@ hr {
   margin-right: 8px;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.loading-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 24px;
-  z-index: 10;
-}
-
-.loading-overlay .spinner {
-  width: 36px;
-  height: 36px;
-  border-color: rgba(97, 45, 83, 0.2);
-  border-top-color: #612D53;
-}
-
-/* ── Admin Logout Button ───────────────────── */
 .btn-logout {
   background: transparent;
   color: #612D53;
@@ -649,38 +566,6 @@ hr {
   transform: none;
 }
 
-/* ── Section Headers ───────────────────────── */
-.section-title {
-  color: #612D53;
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* ── Upload Status Badge ───────────────────── */
-.upload-status {
-  display: inline-block;
-  padding: 6px 16px;
-  border-radius: 100px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-top: 12px;
-}
-
-.upload-status.success {
-  background: #D1FAE5;
-  color: #065F46;
-}
-
-.upload-status.error {
-  background: #FEE2E2;
-  color: #991B1B;
-}
-
-/* ── Empty State ───────────────────────────── */
 .empty-state {
   text-align: center;
   padding: 40px;
@@ -693,100 +578,37 @@ hr {
   display: block;
 }
 
-/* ═══════════════════════════════════════════════
-   RESPONSIVE
-   ═══════════════════════════════════════════════ */
+.admin-link {
+  color: #9CA3AF;
+  font-size: 0.8rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.admin-link:hover { color: #612D53; }
 
 @media (max-width: 768px) {
-  .container {
-    padding: 20px;
-  }
-
-  .login-card {
-    padding: 28px;
-  }
-
-  .result-card {
-    padding: 24px;
-  }
-
-  .result-card h1 {
-    font-size: 1.6rem;
-  }
-
-  .result-card h2 {
-    font-size: 1rem;
-  }
-
-  h1 {
-    font-size: 1.5rem;
-  }
-
-  h2 {
-    font-size: 1rem;
-  }
-
-  .marks-table th,
-  .marks-table td {
-    font-size: 0.85rem;
-    padding: 10px 8px;
-  }
-
-  .stats {
-    grid-template-columns: 1fr;
-  }
-
-  .stat-value {
-    font-size: 1.6rem;
-  }
-
-  .admin-dashboard {
-    padding: 24px;
-  }
-
-  .admin-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-header {
-    flex-direction: column;
-    gap: 12px;
-    align-items: flex-start;
-  }
-
-  .modal {
-    padding: 24px;
-    width: 95%;
-  }
-
-  .info-row {
-    font-size: 0.9rem;
-  }
-
-  .toast {
-    min-width: 240px;
-    max-width: 90vw;
-  }
-
-  .toast-container {
-    top: 12px;
-    right: 12px;
-    left: 12px;
-  }
+  .container { padding: 20px; }
+  .login-card { padding: 28px; }
+  .result-card { padding: 24px; }
+  .result-card h1 { font-size: 1.6rem; }
+  .result-card h2 { font-size: 1rem; }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1rem; }
+  .marks-table th, .marks-table td { font-size: 0.85rem; padding: 10px 8px; }
+  .stats { grid-template-columns: 1fr; }
+  .stat-value { font-size: 1.6rem; }
+  .admin-dashboard { padding: 24px; }
+  .admin-grid { grid-template-columns: 1fr; }
+  .admin-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .modal { padding: 24px; width: 95%; }
+  .info-row { font-size: 0.9rem; }
+  .toast { min-width: 240px; max-width: 90vw; }
+  .toast-container { top: 12px; right: 12px; left: 12px; }
 }
 
 @media (max-width: 480px) {
-  .login-card {
-    padding: 24px 20px;
-  }
-
-  .stat-box {
-    padding: 18px;
-  }
-
-  .stat-icon {
-    width: 44px;
-    height: 44px;
-    font-size: 1.1rem;
-  }
+  .login-card { padding: 24px 20px; }
+  .stat-box { padding: 18px; }
+  .stat-icon { width: 44px; height: 44px; font-size: 1.1rem; }
 }
