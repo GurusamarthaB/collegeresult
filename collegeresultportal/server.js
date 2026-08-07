@@ -23,14 +23,30 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
-// Middleware
-app.use(cors());
+// Middleware - CORS Configured for Vercel
+const allowedOrigins = [
+  'https://collegeresult.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('CORS policy violation: Access denied'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
-// Serve a dynamic JS that injects the Vite/public Supabase env at runtime.
-// This avoids depending solely on build-time embedding and prevents the
-// "Supabase public keys are not configured" warning when the server
-// environment provides the values.
+// Serve dynamic JS for Vite/Supabase runtime env
 app.get('/js/supabase-env.js', (req, res) => {
   const url = String(process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim() || null;
   const anonKey = String(process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim() || null;
@@ -73,7 +89,7 @@ app.post('/api/admin/login', (req, res) => {
   res.json({ success: true, token, message: 'Admin login successful' });
 });
 
-// POST /api/upload-excel — Auto-calculates Total Marks, Percentage, College Rank & Stream Rank
+// POST /api/upload-excel
 app.post('/api/upload-excel', verifyAdmin, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
@@ -85,9 +101,8 @@ app.post('/api/upload-excel', verifyAdmin, upload.single('file'), async (req, re
 
     if (rows.length === 0) return res.status(400).json({ error: 'Excel file is empty' });
 
-    // Columns that are metadata, not subject marks
     const nonSubjectKeys = new Set([
-      'rollno', 'roll_no', 'rollnumber', 'rollnumber', 'name', 'studentname',
+      'rollno', 'roll_no', 'rollnumber', 'name', 'studentname',
       'class', 'class_grade', 'classgrade', 'stream', 'combination', 'totalmarks',
       'total_marks', 'maxmarks', 'max_marks', 'percentage', 'collegerank',
       'college_rank', 'streamrank', 'stream_rank'
@@ -165,8 +180,6 @@ app.post('/api/upload-excel', verifyAdmin, upload.single('file'), async (req, re
       };
     }).filter(Boolean).filter((item) => item.stream === 'Science');
 
-    // 2. Calculate Stream Rank for Science students (kept for compatibility)
-    // 3. Calculate year-specific rank and attach it as yearRank on each item
     function parseYearFromClass(classGrade) {
       const s = String(classGrade || '').toLowerCase();
       if (/\b1\b|\b1st\b|first|year\s*1/.test(s)) return 1;
@@ -192,7 +205,6 @@ app.post('/api/upload-excel', verifyAdmin, upload.single('file'), async (req, re
     let successCount = 0;
     let hasResultsYearRankColumn = false;
 
-    // determine whether the results table already supports year_rank
     try {
       const { error: yearRankError } = await supabase.from('results').select('year_rank').limit(1);
       if (!yearRankError) hasResultsYearRankColumn = true;
@@ -200,7 +212,6 @@ app.post('/api/upload-excel', verifyAdmin, upload.single('file'), async (req, re
       hasResultsYearRankColumn = false;
     }
 
-    // 4. Save/Update records in Supabase
     for (const item of parsedRows) {
       await supabase.from('students').upsert({
         roll_no: item.rollNo,
@@ -281,7 +292,6 @@ app.post('/api/student/login', async (req, res) => {
     if (!roll_no || !password) return res.status(400).json({ error: 'Roll number and password required' });
 
     const normalizedRollNo = String(roll_no || '').trim().toUpperCase();
-    console.log('[POST /api/student/login] roll_no:', roll_no, 'normalized:', normalizedRollNo);
 
     const { data, error } = await supabase
       .from('students')
@@ -289,8 +299,6 @@ app.post('/api/student/login', async (req, res) => {
       .eq('stream', 'Science')
       .ilike('roll_no', normalizedRollNo)
       .single();
-
-    console.log('[POST /api/student/login] student query', { data, error });
 
     if (error || !data) return res.status(404).json({ error: 'Student not found' });
     if (data.password !== password) return res.status(401).json({ error: 'Incorrect password' });
@@ -307,7 +315,6 @@ app.get('/api/student/result/:roll_no', async (req, res) => {
   try {
     const roll_no = String(req.params.roll_no || '').trim();
     const normalizedRollNo = roll_no.toUpperCase();
-    console.log('[GET /api/student/result] input roll_no:', roll_no, 'normalized:', normalizedRollNo);
 
     const { data: student, error: studentError } = await supabase
       .from('students')
@@ -316,7 +323,6 @@ app.get('/api/student/result/:roll_no', async (req, res) => {
       .ilike('roll_no', normalizedRollNo)
       .single();
 
-    console.log('[GET /api/student/result] student query', { student, studentError });
     if (studentError || !student) return res.status(404).json({ error: 'Student not found' });
 
     const { data: result, error: resultError } = await supabase
@@ -325,7 +331,6 @@ app.get('/api/student/result/:roll_no', async (req, res) => {
       .ilike('roll_no', normalizedRollNo)
       .single();
 
-    console.log('[GET /api/student/result] result query', { result, resultError });
     if (resultError || !result) return res.status(404).json({ error: 'Results not found for this student' });
 
     const marks = {};
@@ -346,7 +351,6 @@ app.get('/api/student/result/:roll_no', async (req, res) => {
       if (value !== null && value !== undefined && value !== '') marks[subject] = value;
     });
 
-    // Compute year rank dynamically (do not rely on a DB column)
     function parseYearFromClass(classGrade) {
       const s = String(classGrade || '').toLowerCase();
       if (/\b1\b|\b1st\b|first|year\s*1/.test(s)) return 1;
@@ -356,9 +360,6 @@ app.get('/api/student/result/:roll_no', async (req, res) => {
       return null;
     }
 
-    const studentYear = parseYearFromClass(student.class_grade) || student.class_grade || 'unknown';
-
-    // Fetch results for students in the same class_grade to compute ranking within the year
     const { data: sameYearStudents } = await supabase.from('students')
       .select('roll_no')
       .eq('class_grade', student.class_grade)
