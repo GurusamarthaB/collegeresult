@@ -2,11 +2,13 @@
   "name": "collegeresultportal",
   "version": "1.0.0",
   "description": "Sadvidya PU College - Student Result Portal with Admin Dashboard",
-  "main": "collegeresultportal/server.js",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
-    "start": "node collegeresultportal/server.js",
-    "dev": "node --watch collegeresultportal/server.js",
-    "build": "cd collegeresultportal && npm run build"
+    "start": "node server.js",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "keywords": [
     "college",
@@ -23,9 +25,7 @@
     "express": "^4.21.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
+    "vite": "^5.4.11",
     "xlsx": "^0.18.5"
-  },
-  "devDependencies": {
-    "vite": "^8.2.1"
   }
 }
