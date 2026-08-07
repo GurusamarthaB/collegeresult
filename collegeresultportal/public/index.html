@@ -89,7 +89,7 @@
             btn.innerHTML = '<span class="spinner"></span> Logging in...';
 
             try {
-                const res = await fetch('/api/student/login', {
+                const res = await fetch('https://collegeresult.onrender.com/api/student/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ roll_no: normalizedRollNo, password }),
