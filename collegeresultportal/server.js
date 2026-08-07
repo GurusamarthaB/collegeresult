@@ -26,6 +26,17 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve a dynamic JS that injects the Vite/public Supabase env at runtime.
+// This avoids depending solely on build-time embedding and prevents the
+// "Supabase public keys are not configured" warning when the server
+// environment provides the values.
+app.get('/js/supabase-env.js', (req, res) => {
+  const url = String(process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim() || null;
+  const anonKey = String(process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '').trim() || null;
+  res.type('application/javascript').send(`window.__supabaseClientConfig = { url: ${JSON.stringify(url)}, anonKey: ${JSON.stringify(anonKey)} };`);
+});
+
 app.use(express.static('public'));
 
 const upload = multer({ storage: multer.memoryStorage() });
