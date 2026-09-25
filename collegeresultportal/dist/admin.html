@@ -8,7 +8,7 @@
     <meta name="description"
         content="Admin dashboard for managing students, uploading results, and generating rank lists.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" crossorigin href="./assets/style-DsaEYg_8.css">
+  <link rel="stylesheet" crossorigin href="./assets/style-stK8hPyc.css">
 </head>
 
 <body>
@@ -70,8 +70,8 @@
                 </label>
                 <select id="batchSelect"
                     style="width: 100%; padding: 10px; border-radius: 8px; background-color: #1F2937; color: #F3F4F6; border: 1px solid #374151; outline: none;">
-                    <option value="1st_puc_science">1st Year PUC Science</option>
-                    <option value="2nd_puc_science">2nd Year PUC Science</option>
+                    <option value="1st_puc_science">1st PUC Science</option>
+                    <option value="2nd_puc_science">2nd PUC Science</option>
                 </select>
             </div>
 
@@ -84,8 +84,8 @@
 
             <p style="color:#9CA3AF; font-size:0.8rem; margin-bottom:16px; margin-top: 12px;">
                 <i class="fas fa-info-circle"></i>&nbsp;
-                Expected columns: RollNo, Name, Combination, English, Kannada, plus core science subjects
-                marks.
+                Required columns: <strong>Roll No, Name, Combination, Physics, Chemistry, Mathematics, Computer Science, English, Kannada</strong>.
+                The selected batch is saved as 1st PUC or 2nd PUC.
             </p>
 
             <div class="modal-actions">
@@ -166,6 +166,14 @@
                     </button>
                 </div>
 
+                <div class="admin-card">
+                    <h3>🗑️ Replace Data</h3>
+                    <p>Delete the current Science results before uploading a replacement sheet.</p>
+                    <button id="deleteDataBtn" class="btn-danger">
+                        <i class="fas fa-trash"></i>&nbsp; Delete Existing Data
+                    </button>
+                </div>
+
             </div>
 
         </div>
@@ -221,6 +229,37 @@
         document.getElementById('logoutBtn').addEventListener('click', () => {
             localStorage.removeItem('admin_token');
             window.location.href = 'admin-login.html';
+        });
+
+        // ── Delete Existing Data ────────────────────
+        document.getElementById('deleteDataBtn').addEventListener('click', async () => {
+            const confirmed = window.confirm(
+                'Delete all Science students and their results? This cannot be undone.'
+            );
+            if (!confirmed) return;
+
+            const btn = document.getElementById('deleteDataBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Deleting...';
+
+            try {
+                const res = await fetch('/api/admin/data', {
+                    method: 'DELETE',
+                    headers: authHeaders(),
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    showToast(data.message, 'success');
+                } else {
+                    showToast(data.error || 'Failed to delete existing data', 'error');
+                }
+            } catch (err) {
+                showToast('Network error — could not delete existing data', 'error');
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-trash"></i>&nbsp; Delete Existing Data';
         });
 
         // ═══════════════════════════════════════════

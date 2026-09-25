@@ -93,6 +93,12 @@ Deno.serve(async (req: Request) => {
     if (path === "/upload-excel" && req.method === "POST") {
       const formData = await req.formData();
       const file = formData.get("file");
+      const batchLabels: Record<string, string> = {
+        "1st_puc_science": "1st PUC",
+        "2nd_puc_science": "2nd PUC",
+      };
+      const classGrade = batchLabels[String(formData.get("batch") || "").trim()];
+      if (!classGrade) return json({ error: "Please select a valid PUC batch" }, 400);
       if (!file || !(file instanceof File)) {
         return json({ error: "No file uploaded" }, 400);
       }
@@ -106,21 +112,19 @@ Deno.serve(async (req: Request) => {
       if (rows.length === 0) return json({ error: "Excel file is empty" }, 400);
 
       const nonSubjectKeys = new Set([
-        "rollno", "roll_no", "rollnumber", "name", "studentname",
-        "class", "class_grade", "classgrade", "stream", "combination",
-        "totalmarks", "total_marks", "maxmarks", "max_marks", "percentage",
-        "collegerank", "college_rank", "streamrank", "stream_rank",
+        "rollno", "rollnumber", "name", "studentname", "class", "classgrade", "stream", "combination",
+        "totalmarks", "maxmarks", "percentage", "collegerank", "streamrank",
       ]);
 
       const subjectKeyMap: Record<string, string> = {
         physics: "Physics", chemistry: "Chemistry", math: "Mathematics",
-        maths: "Mathematics", mathematics: "Mathematics", biology: "Biology",
+        "maths": "Mathematics", mathematics: "Mathematics", biology: "Biology",
         computer: "Computer Science", computerscience: "Computer Science",
-        "computer science": "Computer Science", english: "English", kannada: "Kannada",
+        english: "English", kannada: "Kannada",
       };
 
       function normalizeKey(key: string): string {
-        return String(key || "").trim().toLowerCase().replace(/[\s_]/g, "");
+        return String(key || "").trim().toLowerCase().replace(/[\s_.-]/g, "");
       }
 
       function getRowValue(row: Record<string, unknown>, aliases: string[]): unknown {
@@ -138,7 +142,6 @@ Deno.serve(async (req: Request) => {
       const parsedRows = rows.map((row: Record<string, unknown>) => {
         const rollNo = String(getRowValue(row, ["Roll No", "RollNo", "roll_no", "rollno", "roll number"]) || "").trim().toUpperCase();
         const name = String(getRowValue(row, ["Name", "name", "Student Name", "studentname"]) || "").trim();
-        const classGrade = String(getRowValue(row, ["Class", "class", "class_grade", "classgrade"]) || "").trim();
         const combination = String(getRowValue(row, ["Combination", "combination", "comb"]) || "").trim();
         if (!rollNo || !name) return null;
 
@@ -166,11 +169,15 @@ Deno.serve(async (req: Request) => {
         marks: Record<string, number>; totalMarks: number; percentage: number;
       }>;
 
+      if (parsedRows.length === 0) {
+        return json({ error: "No valid students found. Use the required headers: Roll No, Name, Combination, Physics, Chemistry, Mathematics, Computer Science, English, Kannada." }, 400);
+      }
+
       let successCount = 0;
       for (const item of parsedRows) {
         await supabase.from("students").upsert({
           roll_no: item.rollNo, name: item.name, password: item.rollNo,
-          class_grade: item.classGrade, stream: "Science", combination: item.combination,
+          class_grade: classGrade, stream: "Science", combination: item.combination,
         }, { onConflict: "roll_no" });
 
         await supabase.from("results").upsert({

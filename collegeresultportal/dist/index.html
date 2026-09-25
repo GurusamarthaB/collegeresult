@@ -6,7 +6,7 @@
     <title>Sadvidya Result Portal — Student Login</title>
     <meta name="description" content="Login to access your academic performance, semester results and ranking at Sadvidya PU College.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" crossorigin href="./assets/style-DsaEYg_8.css">
+  <link rel="stylesheet" crossorigin href="./assets/style-stK8hPyc.css">
 </head>
 <body>
 
@@ -89,7 +89,7 @@
             btn.innerHTML = '<span class="spinner"></span> Logging in...';
 
             try {
-                const res = await fetch('/api/student/login', {
+                const res = await fetch('https://collegeresult.onrender.com/api/student/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ roll_no: normalizedRollNo, password }),

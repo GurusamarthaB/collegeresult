@@ -94,6 +94,14 @@ app.post('/api/upload-excel', verifyAdmin, upload.single('file'), async (req, re
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
+    const batchLabels = {
+      '1st_puc_science': '1st PUC',
+      '2nd_puc_science': '2nd PUC'
+    };
+    const selectedBatch = String(req.body.batch || '').trim();
+    const classGrade = batchLabels[selectedBatch];
+    if (!classGrade) return res.status(400).json({ error: 'Please select a valid PUC batch' });
+
     const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
@@ -102,20 +110,18 @@ app.post('/api/upload-excel', verifyAdmin, upload.single('file'), async (req, re
     if (rows.length === 0) return res.status(400).json({ error: 'Excel file is empty' });
 
     const nonSubjectKeys = new Set([
-      'rollno', 'roll_no', 'rollnumber', 'name', 'studentname',
-      'class', 'class_grade', 'classgrade', 'stream', 'combination', 'totalmarks',
-      'total_marks', 'maxmarks', 'max_marks', 'percentage', 'collegerank',
-      'college_rank', 'streamrank', 'stream_rank'
+      'rollno', 'rollnumber', 'name', 'studentname', 'class', 'classgrade', 'stream', 'combination', 'totalmarks',
+      'maxmarks', 'percentage', 'collegerank', 'streamrank'
     ]);
 
     const subjectKeyMap = {
       physics: 'Physics', chemistry: 'Chemistry', math: 'Mathematics', maths: 'Mathematics', mathematics: 'Mathematics',
-      biology: 'Biology', computer: 'Computer Science', computerscience: 'Computer Science', 'computer science': 'Computer Science',
+      biology: 'Biology', computer: 'Computer Science', computerscience: 'Computer Science',
       english: 'English', kannada: 'Kannada'
     };
 
     function normalizeKey(key) {
-      return String(key || '').trim().toLowerCase().replace(/[\s_]/g, '');
+      return String(key || '').trim().toLowerCase().replace(/[\s_.-]/g, '');
     }
 
     function getRowValue(row, aliases) {
@@ -138,11 +144,7 @@ app.post('/api/upload-excel', verifyAdmin, upload.single('file'), async (req, re
     const parsedRows = rows.map((row) => {
       const rollNo = String(getRowValue(row, ['Roll No', 'RollNo', 'roll_no', 'rollno', 'roll number']) || '').trim().toUpperCase();
       const name = String(getRowValue(row, ['Name', 'name', 'Student Name', 'studentname']) || '').trim();
-      const classGrade = String(getRowValue(row, ['Class', 'class', 'class_grade', 'classgrade']) || '').trim();
-
-      let stream = String(getRowValue(row, ['Stream', 'stream']) || 'Science').trim();
-      if (stream.toLowerCase().includes('sci')) stream = 'Science';
-      else stream = 'Science';
+      const stream = 'Science';
 
       const combination = String(getRowValue(row, ['Combination', 'combination', 'comb']) || '').trim();
 
@@ -179,6 +181,12 @@ app.post('/api/upload-excel', verifyAdmin, upload.single('file'), async (req, re
         percentage
       };
     }).filter(Boolean).filter((item) => item.stream === 'Science');
+
+    if (parsedRows.length === 0) {
+      return res.status(400).json({
+        error: 'No valid students found. Use the required headers: Roll No, Name, Combination, Physics, Chemistry, Mathematics, Computer Science, English, Kannada.'
+      });
+    }
 
     function parseYearFromClass(classGrade) {
       const s = String(classGrade || '').toLowerCase();
@@ -217,7 +225,7 @@ app.post('/api/upload-excel', verifyAdmin, upload.single('file'), async (req, re
         roll_no: item.rollNo,
         name: item.name,
         password: item.rollNo,
-        class_grade: item.classGrade,
+        class_grade: classGrade,
         stream: item.stream,
         combination: item.combination
       }, { onConflict: 'roll_no' });
