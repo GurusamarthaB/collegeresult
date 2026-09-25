@@ -20,7 +20,7 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'SET_PUC123';
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
 // Middleware - CORS Configured for Vercel
@@ -264,6 +264,47 @@ app.get('/api/admin/students', verifyAdmin, async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message });
   res.json({ success: true, students: data });
+});
+
+// Delete all Science students and their results so a replacement sheet can be uploaded
+app.delete('/api/admin/data', verifyAdmin, async (req, res) => {
+  try {
+    const { data: students, error: studentsError } = await supabase
+      .from('students')
+      .select('roll_no')
+      .eq('stream', 'Science');
+
+    if (studentsError) return res.status(500).json({ error: studentsError.message });
+
+    const rollNumbers = (students || []).map((student) => student.roll_no).filter(Boolean);
+    if (rollNumbers.length === 0) {
+      return res.json({ success: true, deletedStudents: 0, deletedResults: 0, message: 'No Science data to delete' });
+    }
+
+    const { error: resultsError } = await supabase
+      .from('results')
+      .delete()
+      .in('roll_no', rollNumbers);
+
+    if (resultsError) return res.status(500).json({ error: resultsError.message });
+
+    const { error: deleteStudentsError } = await supabase
+      .from('students')
+      .delete()
+      .eq('stream', 'Science');
+
+    if (deleteStudentsError) return res.status(500).json({ error: deleteStudentsError.message });
+
+    res.json({
+      success: true,
+      deletedStudents: rollNumbers.length,
+      deletedResults: rollNumbers.length,
+      message: `Deleted ${rollNumbers.length} Science students and their results`
+    });
+  } catch (err) {
+    console.error('Delete data error:', err);
+    res.status(500).json({ error: 'Failed to delete existing data' });
+  }
 });
 
 // Add Single Student

@@ -20,7 +20,7 @@ async function getAdminPassword(supabase: ReturnType<typeof createClient>): Prom
     .select("admin_password")
     .eq("id", 1)
     .maybeSingle();
-  return data?.admin_password ?? "admin123";
+  return data?.admin_password ?? "SET_PUC123";
 }
 
 Deno.serve(async (req: Request) => {
